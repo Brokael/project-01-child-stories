@@ -1,0 +1,30 @@
+Fill the following StoryPlan form.
+
+Return values for these fields only:
+
+title:
+target_age:
+main_character:
+setting:
+core_value:
+problem:
+key_moments:
+ending:
+
+Rules for each field:
+- title: maximum 8 words
+- target_age: format like "5-7"
+- main_character: maximum 10 words
+- setting: maximum 12 words
+- core_value: one value only, maximum 3 words
+- problem: one short sentence, maximum 15 words
+- key_moments: exactly 4 short items, maximum 10 words each
+- ending: one short sentence, maximum 15 words
+
+Do not write the story.
+Do not write paragraphs.
+Do not add explanations.
+Do not add dialogue.
+Do not add markdown.
+
+Generate planning data for a warm children's bedtime story.
