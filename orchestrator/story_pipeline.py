@@ -7,6 +7,7 @@ from agents.story_rewriter import rewrite_story
 from agents.parent_companion_agent import generate_parent_companion
 from config import MIN_REVIEW_SCORE, MAX_REWRITE_PASSES, SELECTED_THEME_OPTION
 from utils.logger import setup_logger
+from utils.formatters import format_parent_companion
 from datetime import datetime
 from pathlib import Path
 
@@ -88,9 +89,7 @@ def save_story_output(
 
 {final_review}
 
-=== PARENT COMPANION ===
-
-{parent_companion}
+{format_parent_companion(parent_companion)}
 """
 
     file_path.write_text(content, encoding="utf-8")
@@ -107,7 +106,9 @@ def run_story_pipeline():
     logger.info("Theme options generated")
 
     selected_theme = select_theme_option(theme_options)
-    logger.info(f"Selected theme option: {selected_theme.option_number} - {selected_theme.title}")
+    logger.info(
+        f"Selected theme option: {selected_theme.option_number} - {selected_theme.title}"
+    )
 
     story_plan = generate_story_plan(selected_theme=selected_theme)
     logger.info("Story plan generated")
@@ -137,7 +138,9 @@ def run_story_pipeline():
         review = review_story(story_plan, story)
         review_versions.append(review)
 
-        logger.info(f"Review after rewrite pass {rewrite_pass} score: {review.overall_score}")
+        logger.info(
+            f"Review after rewrite pass {rewrite_pass} score: {review.overall_score}"
+        )
 
     final_story = story
     final_review = review

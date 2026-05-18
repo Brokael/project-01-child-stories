@@ -1,4 +1,5 @@
 from orchestrator.story_pipeline import run_story_pipeline
+from utils.formatters import format_parent_companion
 
 
 def main():
@@ -32,8 +33,7 @@ def main():
     print("\n=== FINAL REVIEW ===\n")
     print(review)
 
-    print("\n=== PARENT COMPANION ===\n")
-    print(parent_companion)
+    print(format_parent_companion(parent_companion))
 
     print(f"\n=== SAVED TO ===\n{saved_file}")
 
