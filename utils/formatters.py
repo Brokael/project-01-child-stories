@@ -4,7 +4,7 @@ def format_parent_companion(parent_companion):
     for symbol in parent_companion.symbol_explanations:
         symbols_text += f"""
 - {symbol.story_element}
-  → {symbol.symbolic_meaning}
+  -> {symbol.symbolic_meaning}
 """
 
     values_text = "\n".join(

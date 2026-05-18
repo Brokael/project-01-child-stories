@@ -8,6 +8,7 @@ from schemas.calendar_event_schema import (
 
 
 HEBCAL_URL = "https://www.hebcal.com/hebcal"
+HEBCAL_TIMEOUT_SECONDS = 10
 
 
 def get_calendar_context():
@@ -24,8 +25,17 @@ def get_calendar_context():
         "c": "on"
     }
 
-    response = requests.get(HEBCAL_URL, params=params)
-    response.raise_for_status()
+    try:
+        response = requests.get(
+            HEBCAL_URL,
+            params=params,
+            timeout=HEBCAL_TIMEOUT_SECONDS
+        )
+        response.raise_for_status()
+    except requests.RequestException as error:
+        raise RuntimeError(
+            f"Unable to fetch calendar context from {HEBCAL_URL}: {error}"
+        ) from error
 
     data = response.json()
 
