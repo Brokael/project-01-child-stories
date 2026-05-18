@@ -31,7 +31,7 @@ Reviewer feedback:
 """
 
     response = client.responses.create(
-        model=MODELS["story_writer"],
+        model=MODELS["rewriter"],
         input=full_prompt
     )
 

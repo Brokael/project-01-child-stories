@@ -1,10 +1,17 @@
+DEFAULT_MODEL = "gpt-5-mini"
+
 MODELS = {
-    "story_planner": "gpt-5-mini",
-    "story_writer": "gpt-5-mini",
-    "reviewer": "gpt-5-mini"
+    "story_planner": DEFAULT_MODEL,
+    "story_writer": DEFAULT_MODEL,
+    "reviewer": DEFAULT_MODEL,
+    "rewriter": DEFAULT_MODEL,
+    "parent_companion": DEFAULT_MODEL,
+    "theme_selector": DEFAULT_MODEL
 }
 
 LANGUAGE = "Francais"
 
 MIN_REVIEW_SCORE = 9
-MAX_REWRITE_PASSES = 3
+MAX_REWRITE_PASSES = 2
+
+SELECTED_THEME_OPTION = 1
