@@ -5,7 +5,12 @@ from agents.story_writer import generate_story
 from agents.reviewer import review_story
 from agents.story_rewriter import rewrite_story
 from agents.parent_companion_agent import generate_parent_companion
-from config import MIN_REVIEW_SCORE, MAX_REWRITE_PASSES, SELECTED_THEME_OPTION
+from config import (
+    LANGUAGE,
+    MIN_REVIEW_SCORE,
+    MAX_REWRITE_PASSES,
+    SELECTED_THEME_OPTION
+)
 from utils.logger import setup_logger
 from utils.formatters import format_parent_companion
 from datetime import datetime
@@ -15,9 +20,12 @@ from pathlib import Path
 logger = setup_logger()
 
 
-def select_theme_option(theme_options):
+def select_theme_option(theme_options, selected_option_number=None):
+    if selected_option_number is None:
+        selected_option_number = SELECTED_THEME_OPTION
+
     for option in theme_options.options:
-        if option.option_number == SELECTED_THEME_OPTION:
+        if option.option_number == selected_option_number:
             return option
 
     return theme_options.options[0]
@@ -96,30 +104,55 @@ def save_story_output(
     return file_path
 
 
-def run_story_pipeline():
+def run_story_pipeline(
+    calendar_context=None,
+    theme_options=None,
+    selected_theme=None,
+    selected_option_number=None,
+    language=None
+):
+    if language is None:
+        language = LANGUAGE
+
     logger.info("Starting story pipeline")
 
-    calendar_context = get_calendar_context()
-    logger.info("Calendar context generated")
+    if calendar_context is None:
+        calendar_context = get_calendar_context()
+        logger.info("Calendar context generated")
+    else:
+        logger.info("Using provided calendar context")
 
-    theme_options = generate_theme_options(calendar_context)
-    logger.info("Theme options generated")
+    if theme_options is None:
+        theme_options = generate_theme_options(calendar_context, language=language)
+        logger.info("Theme options generated")
+    else:
+        logger.info("Using provided theme options")
 
-    selected_theme = select_theme_option(theme_options)
+    if selected_theme is None:
+        selected_theme = select_theme_option(
+            theme_options,
+            selected_option_number=selected_option_number
+        )
+    else:
+        logger.info("Using provided selected theme")
+
     logger.info(
         f"Selected theme option: {selected_theme.option_number} - {selected_theme.title}"
     )
 
-    story_plan = generate_story_plan(selected_theme=selected_theme)
+    story_plan = generate_story_plan(
+        selected_theme=selected_theme,
+        language=language
+    )
     logger.info("Story plan generated")
 
-    story = generate_story(story_plan)
+    story = generate_story(story_plan, language=language)
     logger.info("Initial story generated")
 
     story_versions = [story]
     review_versions = []
 
-    review = review_story(story_plan, story)
+    review = review_story(story_plan, story, language=language)
     review_versions.append(review)
     logger.info(f"Initial review score: {review.overall_score}")
 
@@ -130,12 +163,12 @@ def run_story_pipeline():
 
         logger.info(f"Rewrite pass {rewrite_pass} started")
 
-        story = rewrite_story(story_plan, story, review)
+        story = rewrite_story(story_plan, story, review, language=language)
         story_versions.append(story)
 
         logger.info(f"Rewrite pass {rewrite_pass} completed")
 
-        review = review_story(story_plan, story)
+        review = review_story(story_plan, story, language=language)
         review_versions.append(review)
 
         logger.info(
@@ -149,7 +182,8 @@ def run_story_pipeline():
         story_plan=story_plan,
         story=final_story,
         theme_options=theme_options,
-        calendar_context=calendar_context
+        calendar_context=calendar_context,
+        language=language
     )
     logger.info("Parent companion generated")
 

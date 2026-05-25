@@ -81,7 +81,7 @@ Logs are written to `logs/app.log`.
 2. Install the required dependencies:
 
    ```powershell
-   pip install openai python-dotenv requests pydantic
+   pip install -r requirements.txt
    ```
 
 3. Create a `.env` file in the project root with an OpenAI API key:
@@ -104,13 +104,22 @@ Logs are written to `logs/app.log`.
    python main.py
    ```
 
+   Or run the simple Streamlit interface:
+
+   ```powershell
+   streamlit run streamlit_app.py
+   ```
+
+   The Streamlit interface guides the user through event and language
+   selection, theme selection, story generation, the Parents Guide, and PDF
+   export.
+
 The generated story output is saved in `stories/`. Logs are saved in `logs/`.
-Both folders are ignored by Git.
+PDF exports are saved in `exports/`. These folders are ignored by Git.
 
 ## Current Limitations
 
-- There is no `requirements.txt` or lockfile yet, so dependencies must be
-  installed manually.
+- Dependencies are listed in `requirements.txt`, but there is no lockfile yet.
 - OpenAI client setup and prompt loading are repeated across agents.
 - The pipeline returns a long positional tuple instead of a named result object.
 - Theme selection is configured by a fixed option number, not user input or an

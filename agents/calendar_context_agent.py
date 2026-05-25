@@ -11,14 +11,12 @@ HEBCAL_URL = "https://www.hebcal.com/hebcal"
 HEBCAL_TIMEOUT_SECONDS = 10
 
 
-def get_calendar_context():
-    today = date.today()
-
+def fetch_calendar_items(year):
     params = {
         "v": "1",
         "cfg": "json",
         "maj": "on",
-        "year": today.year,
+        "year": year,
         "month": "x",
         "ss": "on",
         "mf": "on",
@@ -37,24 +35,57 @@ def get_calendar_context():
             f"Unable to fetch calendar context from {HEBCAL_URL}: {error}"
         ) from error
 
-    data = response.json()
+    return response.json().get("items", [])
 
-    future_items = []
 
-    for item in data.get("items", []):
+def get_calendar_context():
+    today = date.today()
+
+    items = []
+
+    for year in [today.year - 1, today.year, today.year + 1]:
+        items.extend(fetch_calendar_items(year))
+
+    unique_items = {}
+
+    for item in items:
+        item_key = (
+            item.get("date", ""),
+            item.get("title", "")
+        )
+        unique_items[item_key] = item
+
+    past_items = []
+    upcoming_items = []
+
+    for item in unique_items.values():
         item_date = date.fromisoformat(item.get("date", "")[:10])
 
-        if item_date >= today:
-            future_items.append(item)
+        if item_date < today:
+            past_items.append(item)
+        else:
+            upcoming_items.append(item)
 
-    future_items = sorted(
-        future_items,
+    past_items = sorted(
+        past_items,
         key=lambda item: item.get("date", "")
     )
 
-    upcoming_events = []
+    upcoming_items = sorted(
+        upcoming_items,
+        key=lambda item: item.get("date", "")
+    )
 
-    for item in future_items[:5]:
+    selected_items = []
+
+    if past_items:
+        selected_items.append(past_items[-1])
+
+    selected_items.extend(upcoming_items[:2])
+
+    relevant_events = []
+
+    for item in selected_items:
         title = item.get("title", "")
         hebrew = item.get("hebrew", "")
         event_date = item.get("date", "")
@@ -64,15 +95,15 @@ def get_calendar_context():
             hebrew_name=hebrew,
             start_date=event_date,
             end_date=event_date,
-            description=f"Upcoming Jewish event: {title}",
+            description=f"Relevant Jewish event: {title}",
             narrative_values=[],
             story_angles=[]
         )
 
-        upcoming_events.append(event)
+        relevant_events.append(event)
 
     return CalendarContext(
-        upcoming_events=upcoming_events
+        upcoming_events=relevant_events
     )
 
 if __name__ == "__main__":

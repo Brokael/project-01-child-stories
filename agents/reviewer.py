@@ -12,7 +12,9 @@ client = OpenAI(
 )
 
 
-def review_story(story_plan, story):
+def review_story(story_plan, story, language=None):
+    if language is None:
+        language = LANGUAGE
 
     with open("prompts/reviewer_prompt.txt", "r", encoding="utf-8") as file:
         reviewer_prompt = file.read()
@@ -20,7 +22,7 @@ def review_story(story_plan, story):
     full_prompt = f"""
 {reviewer_prompt}
 
-Review language: {LANGUAGE}
+Review language: {language}
 
 StoryPlan:
 {story_plan}

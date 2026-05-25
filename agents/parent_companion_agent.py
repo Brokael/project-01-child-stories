@@ -11,7 +11,15 @@ client = OpenAI(
 )
 
 
-def generate_parent_companion(story_plan, story, theme_options=None, calendar_context=None):
+def generate_parent_companion(
+    story_plan,
+    story,
+    theme_options=None,
+    calendar_context=None,
+    language=None
+):
+    if language is None:
+        language = LANGUAGE
 
     with open("prompts/parent_companion_prompt.txt", "r", encoding="utf-8") as file:
         parent_prompt = file.read()
@@ -19,7 +27,7 @@ def generate_parent_companion(story_plan, story, theme_options=None, calendar_co
     full_prompt = f"""
 {parent_prompt}
 
-Response language: {LANGUAGE}
+Response language: {language}
 
 StoryPlan:
 {story_plan}

@@ -10,7 +10,9 @@ client = OpenAI(
 )
 
 
-def generate_story(story_plan):
+def generate_story(story_plan, language=None):
+    if language is None:
+        language = LANGUAGE
 
     with open("prompts/story_writer_prompt.txt", "r", encoding="utf-8") as file:
         writer_prompt = file.read()
@@ -18,7 +20,7 @@ def generate_story(story_plan):
     full_prompt = f"""
 {writer_prompt}
 
-Write the story in: {LANGUAGE}
+Write the story in: {language}
 
 StoryPlan:
 {story_plan}

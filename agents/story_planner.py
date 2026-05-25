@@ -1,4 +1,4 @@
-from config import MODELS
+from config import MODELS, LANGUAGE
 from openai import OpenAI
 from dotenv import load_dotenv
 from schemas.story_plan_schema import StoryPlan
@@ -12,7 +12,9 @@ client = OpenAI(
 )
 
 
-def generate_story_plan(selected_theme=None):
+def generate_story_plan(selected_theme=None, language=None):
+    if language is None:
+        language = LANGUAGE
 
     with open("prompts/story_planner_prompt.txt", "r", encoding="utf-8") as file:
         planner_prompt = file.read()
@@ -22,6 +24,9 @@ def generate_story_plan(selected_theme=None):
 
 Use these story parameters:
 {STORY_PARAMETERS}
+
+Story language:
+{language}
 
 Selected Theme:
 {selected_theme}

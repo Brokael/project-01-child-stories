@@ -10,7 +10,9 @@ client = OpenAI(
 )
 
 
-def rewrite_story(story_plan, story, review):
+def rewrite_story(story_plan, story, review, language=None):
+    if language is None:
+        language = LANGUAGE
 
     with open("prompts/story_rewriter_prompt.txt", "r", encoding="utf-8") as file:
         rewriter_prompt = file.read()
@@ -18,7 +20,7 @@ def rewrite_story(story_plan, story, review):
     full_prompt = f"""
 {rewriter_prompt}
 
-Rewrite language: {LANGUAGE}
+Rewrite language: {language}
 
 StoryPlan:
 {story_plan}

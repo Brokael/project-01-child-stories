@@ -1,6 +1,6 @@
 from openai import OpenAI
 from dotenv import load_dotenv
-from config import MODELS
+from config import MODELS, LANGUAGE
 from schemas.theme_option_schema import ThemeOptions
 import os
 
@@ -11,13 +11,18 @@ client = OpenAI(
 )
 
 
-def generate_theme_options(calendar_context):
+def generate_theme_options(calendar_context, language=None):
+    if language is None:
+        language = LANGUAGE
 
     with open("prompts/theme_selector_prompt.txt", "r", encoding="utf-8") as file:
         theme_prompt = file.read()
 
     full_prompt = f"""
 {theme_prompt}
+
+Response language:
+{language}
 
 Calendar Context:
 {calendar_context}
