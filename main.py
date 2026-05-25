@@ -2,6 +2,15 @@ from orchestrator.story_pipeline import run_story_pipeline
 from utils.formatters import format_parent_companion
 
 
+def is_running_in_streamlit():
+    try:
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+
+        return get_script_run_ctx() is not None
+    except Exception:
+        return False
+
+
 def main():
 
     (
@@ -39,4 +48,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if is_running_in_streamlit():
+        from streamlit_app import main as streamlit_main
+
+        streamlit_main()
+    else:
+        main()

@@ -120,6 +120,10 @@ Logs are written to `logs/app.log`.
    selection, theme selection, story generation, the Parents Guide, and PDF
    export.
 
+   If Streamlit Cloud is configured to run `main.py`, the app will still route
+   to the Streamlit interface. Running `python main.py` locally keeps the
+   original command-line pipeline behavior.
+
 The generated story output is saved in `stories/`. Logs are saved in `logs/`.
 PDF exports are saved in `exports/`. These folders are ignored by Git.
 
