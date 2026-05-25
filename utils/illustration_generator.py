@@ -13,7 +13,7 @@ REFERENCE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 IMAGE_COUNT = 1
 IMAGE_SIZE = "1024x1024"
 IMAGE_QUALITY = "low"
-IMAGE_INPUT_FIDELITY = "low"
+IMAGE_INPUT_FIDELITY = "high"
 STORY_CONTEXT_LIMIT = 1200
 VISUAL_STYLE_PROFILE = """
 Minimalist child-friendly storybook illustration.
@@ -29,8 +29,9 @@ No text, letters, captions, signs, or written words.
 Inspired by the local style references without copying them directly.
 """
 REFERENCE_STYLE_INSTRUCTIONS = """
-Use the provided local style reference images as the main visual direction.
-Follow their overall simplicity, palette, texture, softness, and child-friendly mood.
+The attached input images are local style references from assets/style_references.
+Use them as the primary visual style source, not as story content.
+Match their overall simplicity, palette, texture, softness, line quality, shape language, and child-friendly mood.
 Do not copy a specific character, object, or exact composition from the references.
 Prefer broad, rounded silhouettes, quiet negative space, and a soft paper-cut or gouache-like finish.
 Avoid 3D render, anime, comic-book style, glossy digital art, realistic people, complex scenery, and dramatic lighting.
@@ -91,6 +92,8 @@ Style requirements:
 - Local reference guidance:
 {REFERENCE_STYLE_INSTRUCTIONS.strip()}
 
+- Treat the local reference images as more important than generic model style defaults.
+- If there is a conflict, keep the story scene content but follow the reference images for visual treatment.
 - Keep one clear focal moment from the story.
 - Keep the setting sparse and readable.
 - Warm, reassuring, non-scary, and age-appropriate for ages 5-7.

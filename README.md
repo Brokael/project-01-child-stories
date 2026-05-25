@@ -146,17 +146,22 @@ story, a centralized minimalist visual style profile, and the local reference
 images. The references guide the overall palette, texture, simplicity, and mood
 without asking the model to copy them directly.
 The MVP uses one `gpt-image-1` image edit call per story, with `n=1`,
-`quality="low"`, `input_fidelity="low"`, and `size="1024x1024"`. `512x512`
-would be preferred for cost control, but it is not a supported size for the
-current `gpt-image-1` image edit endpoint; `1024x1024` is the smallest valid
-square size for this model.
+`quality="low"`, `input_fidelity="high"`, and `size="1024x1024"`. High input
+fidelity is used so the generated illustration follows the local style
+reference images more strongly while still keeping image count and quality low.
+`512x512` would be preferred for cost control, but it is not a supported size
+for the current `gpt-image-1` image edit endpoint; `1024x1024` is the smallest
+valid square size for this model.
 
 PDF export uses ReportLab with a Unicode-capable system font when available.
 It uses `python-bidi` for right-to-left text ordering and `arabic-reshaper` for
 Persian/Farsi and Arabic-script glyph shaping. On Streamlit Cloud, DejaVu fonts
 are normally available under the system font directories. If deploying to a
 minimal environment without Unicode fonts, add a licensed TTF such as Noto Sans
-Hebrew or Noto Naskh Arabic to `assets/fonts/`.
+Hebrew or Noto Naskh Arabic to `assets/fonts/`. The repository includes Noto
+Naskh Arabic, Noto Sans Hebrew, and DejaVu Sans font files so Hebrew,
+Persian/Farsi, and mixed right-to-left exports do not depend only on the host
+operating system fonts.
 
 ## Current Limitations
 

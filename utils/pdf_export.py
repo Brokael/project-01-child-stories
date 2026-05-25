@@ -4,17 +4,42 @@ import re
 from xml.sax.saxutils import escape
 
 
-FONT_CANDIDATES = [
-    Path("assets/fonts/NotoSansHebrew-Regular.ttf"),
+ARABIC_SCRIPT_FONT_CANDIDATES = [
     Path("assets/fonts/NotoNaskhArabic-Regular.ttf"),
     Path("assets/fonts/NotoSansArabic-Regular.ttf"),
-    Path("assets/fonts/NotoSans-Regular.ttf"),
-    Path("assets/fonts/DejaVuSans.ttf"),
-    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
     Path("/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf"),
     Path("/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf"),
+    Path("C:/Windows/Fonts/NotoNaskhArabic-Regular.ttf"),
+    Path("C:/Windows/Fonts/NotoSansArabic-Regular.ttf"),
+    Path("C:/Windows/Fonts/tahoma.ttf"),
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    Path("C:/Windows/Fonts/DejaVuSans.ttf"),
+    Path("C:/Windows/Fonts/arialuni.ttf")
+]
+
+MIXED_RTL_FONT_CANDIDATES = [
+    Path("assets/fonts/DejaVuSans.ttf"),
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    Path("C:/Windows/Fonts/DejaVuSans.ttf"),
+    Path("C:/Windows/Fonts/arialuni.ttf")
+]
+
+HEBREW_FONT_CANDIDATES = [
+    Path("assets/fonts/NotoSansHebrew-Regular.ttf"),
     Path("/usr/share/fonts/truetype/noto/NotoSansHebrew-Regular.ttf"),
+    Path("C:/Windows/Fonts/NotoSansHebrew-Regular.ttf"),
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    Path("C:/Windows/Fonts/DejaVuSans.ttf"),
+    Path("C:/Windows/Fonts/arialuni.ttf")
+]
+
+GENERAL_FONT_CANDIDATES = [
+    Path("assets/fonts/NotoSans-Regular.ttf"),
+    Path("assets/fonts/DejaVuSans.ttf"),
     Path("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"),
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    Path("C:/Windows/Fonts/NotoSans-Regular.ttf"),
+    Path("C:/Windows/Fonts/DejaVuSans.ttf"),
     Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
     Path("/Library/Fonts/Arial Unicode.ttf"),
     Path("C:/Windows/Fonts/arial.ttf"),
@@ -100,8 +125,8 @@ def get_labels(language):
     return SECTION_LABELS.get(language, SECTION_LABELS["English"])
 
 
-def find_unicode_font_path():
-    for font_path in FONT_CANDIDATES:
+def find_first_existing_font(font_candidates):
+    for font_path in font_candidates:
         if font_path.exists():
             return font_path
 
@@ -114,6 +139,28 @@ def contains_hebrew(text):
 
 def contains_arabic_script(text):
     return bool(re.search(r"[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]", str(text)))
+
+
+def find_unicode_font_path(text=""):
+    if contains_arabic_script(text) and contains_hebrew(text):
+        font_path = find_first_existing_font(MIXED_RTL_FONT_CANDIDATES)
+
+        if font_path:
+            return font_path
+
+    if contains_arabic_script(text):
+        font_path = find_first_existing_font(ARABIC_SCRIPT_FONT_CANDIDATES)
+
+        if font_path:
+            return font_path
+
+    if contains_hebrew(text):
+        font_path = find_first_existing_font(HEBREW_FONT_CANDIDATES)
+
+        if font_path:
+            return font_path
+
+    return find_first_existing_font(GENERAL_FONT_CANDIDATES)
 
 
 def prepare_text_for_pdf(text):
@@ -214,8 +261,34 @@ def export_story_pdf(
 
     pdf_path = exports_folder / make_pdf_filename(selected_event, story_title)
 
+    labels = get_labels(language)
+    pdf_text_sample = " ".join(
+        str(part)
+        for part in [
+            language,
+            *labels.values(),
+            selected_event.name,
+            selected_event.hebrew_name,
+            selected_event.description,
+            selected_theme.title,
+            selected_theme.source_event,
+            selected_theme.core_value,
+            selected_theme.story_angle,
+            selected_theme.description,
+            final_story,
+            parent_companion.linked_event,
+            " ".join(parent_companion.core_values),
+            parent_companion.event_explanation,
+            " ".join(
+                f"{symbol.story_element} {symbol.symbolic_meaning}"
+                for symbol in parent_companion.symbol_explanations
+            )
+        ]
+        if part
+    )
+
     font_name = "Helvetica"
-    font_path = find_unicode_font_path()
+    font_path = find_unicode_font_path(pdf_text_sample)
 
     if font_path:
         pdfmetrics.registerFont(TTFont("StoryFont", str(font_path)))
@@ -248,7 +321,6 @@ def export_story_pdf(
         spaceAfter=8
     )
 
-    labels = get_labels(language)
     spacer = Spacer(1, 0.12 * inch)
     story = []
 
