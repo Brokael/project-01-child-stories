@@ -1,12 +1,15 @@
 from datetime import date
 import importlib
+from pathlib import Path
 
 import streamlit as st
 
+from agents.illustration_brief_agent import generate_scene_brief
 import agents.calendar_context_agent as calendar_context_agent
 import agents.theme_selector_agent as theme_selector_agent
 import orchestrator.story_pipeline as story_pipeline
 from schemas.calendar_event_schema import CalendarContext
+from utils.illustration_generator import generate_story_illustration
 from utils.pdf_export import export_story_pdf
 
 
@@ -41,6 +44,9 @@ UI_TEXT = {
         "choose_this_theme": "Choisir ce theme",
         "generate_story": "Generer l'histoire",
         "story_ready": "L'histoire est prete.",
+        "generate_illustration": "Generer une illustration de l'histoire",
+        "create_illustration": "Creer l'illustration",
+        "illustration_ready": "Illustration creee.",
         "story": "Histoire",
         "parents_guide": "Guide Parents",
         "create_pdf": "Creer le PDF",
@@ -60,6 +66,9 @@ UI_TEXT = {
         "choose_this_theme": "Choose this theme",
         "generate_story": "Generate Story",
         "story_ready": "The story is ready.",
+        "generate_illustration": "Generate a story illustration",
+        "create_illustration": "Create illustration",
+        "illustration_ready": "Illustration created.",
         "story": "Story",
         "parents_guide": "Parents Guide",
         "create_pdf": "Create PDF",
@@ -100,6 +109,10 @@ def init_session_state():
         "pipeline_result": None,
         "pdf_path": None,
         "is_generating_story": False,
+        "wants_illustration": False,
+        "is_generating_illustration": False,
+        "scene_brief": None,
+        "illustration_path": None,
         "last_event_key": None,
         "last_language": "Français"
     }
@@ -174,12 +187,20 @@ def reset_generated_outputs():
     st.session_state.pipeline_result = None
     st.session_state.pdf_path = None
     st.session_state.is_generating_story = False
+    st.session_state.wants_illustration = False
+    st.session_state.is_generating_illustration = False
+    st.session_state.scene_brief = None
+    st.session_state.illustration_path = None
 
 
 def reset_story_outputs():
     st.session_state.pipeline_result = None
     st.session_state.pdf_path = None
     st.session_state.is_generating_story = False
+    st.session_state.wants_illustration = False
+    st.session_state.is_generating_illustration = False
+    st.session_state.scene_brief = None
+    st.session_state.illustration_path = None
 
 
 def show_progress():
@@ -252,6 +273,28 @@ def show_parents_guide(parent_companion):
     st.subheader("Story elements to understand")
     for symbol in parent_companion.symbol_explanations:
         st.write(f"- {symbol.story_element}: {symbol.symbolic_meaning}")
+
+
+def get_illustration_path():
+    illustration_path = st.session_state.illustration_path
+
+    if not illustration_path:
+        return None
+
+    return Path(illustration_path)
+
+
+def display_illustration_if_available():
+    illustration_path = get_illustration_path()
+
+    if illustration_path and illustration_path.exists():
+        st.image(str(illustration_path), caption="Story illustration")
+        return True
+
+    if st.session_state.wants_illustration:
+        st.warning("Illustration was requested but no image file was found.")
+
+    return False
 
 
 def go_back():
@@ -402,8 +445,45 @@ def generate_step():
 def story_step():
     st.header(text("story"))
 
+    story_plan = st.session_state.pipeline_result[3]
     final_story = st.session_state.pipeline_result[4]
     st.write(final_story)
+
+    st.session_state.wants_illustration = st.checkbox(
+        text("generate_illustration"),
+        value=st.session_state.wants_illustration,
+        disabled=get_illustration_path() is not None
+    )
+
+    if st.session_state.wants_illustration:
+        if not display_illustration_if_available():
+            if st.button(
+                text("create_illustration"),
+                disabled=st.session_state.is_generating_illustration
+            ):
+                st.session_state.is_generating_illustration = True
+
+                with st.spinner("Creating one story illustration..."):
+                    try:
+                        st.session_state.scene_brief = generate_scene_brief(
+                            story=final_story,
+                            selected_theme=st.session_state.selected_theme,
+                            selected_event=st.session_state.selected_event,
+                            language=st.session_state.selected_language
+                        )
+                        illustration_path = generate_story_illustration(
+                            scene_brief=st.session_state.scene_brief,
+                            story_title=story_plan.title,
+                            language=st.session_state.selected_language
+                        )
+                        st.session_state.illustration_path = str(illustration_path)
+                        st.success(text("illustration_ready"))
+                        display_illustration_if_available()
+                    except Exception as error:
+                        st.error("Illustration generation failed.")
+                        st.exception(error)
+                    finally:
+                        st.session_state.is_generating_illustration = False
 
     show_navigation()
 
@@ -436,7 +516,8 @@ def export_step():
                 final_story=final_story,
                 parent_companion=parent_companion,
                 language=st.session_state.selected_language,
-                story_title=story_plan.title
+                story_title=story_plan.title,
+                illustration_path=get_illustration_path()
             )
 
     if st.session_state.pdf_path:

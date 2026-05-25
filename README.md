@@ -117,15 +117,25 @@ Logs are written to `logs/app.log`.
    ```
 
    The Streamlit interface guides the user through event and language
-   selection, theme selection, story generation, the Parents Guide, and PDF
-   export.
+   selection, theme selection, story generation, optional illustration, the
+   Parents Guide, and PDF export.
 
    If Streamlit Cloud is configured to run `main.py`, the app will still route
    to the Streamlit interface. Running `python main.py` locally keeps the
    original command-line pipeline behavior.
 
 The generated story output is saved in `stories/`. Logs are saved in `logs/`.
-PDF exports are saved in `exports/`. These folders are ignored by Git.
+PDF exports are saved in `exports/`. Optional generated illustrations are
+saved in `illustrations/`. These folders are ignored by Git.
+
+Optional illustration generation uses local style reference images from
+`assets/style_references/`. Keep a small number of curated reference images in
+that folder so deployed environments can reproduce the intended visual style.
+The MVP uses one `gpt-image-1` image edit call per story, with `n=1`,
+`quality="low"`, `input_fidelity="low"`, and `size="1024x1024"`. `512x512`
+would be preferred for cost control, but it is not a supported size for the
+current `gpt-image-1` image edit endpoint; `1024x1024` is the smallest valid
+square size for this model.
 
 ## Current Limitations
 

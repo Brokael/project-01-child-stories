@@ -6,7 +6,9 @@ MODELS = {
     "reviewer": DEFAULT_MODEL,
     "rewriter": DEFAULT_MODEL,
     "parent_companion": DEFAULT_MODEL,
-    "theme_selector": DEFAULT_MODEL
+    "theme_selector": DEFAULT_MODEL,
+    "illustration_brief": DEFAULT_MODEL,
+    "illustration_image": "gpt-image-1"
 }
 
 LANGUAGE = "Francais"

@@ -10,6 +10,7 @@ SECTION_LABELS = {
         "event": "Evenement choisi",
         "theme": "Theme choisi",
         "story": "Histoire finale",
+        "illustration": "Illustration",
         "parents": "Guide Parents",
         "date": "Date",
         "hebrew_name": "Nom hebreu",
@@ -26,6 +27,7 @@ SECTION_LABELS = {
         "event": "Selected Event",
         "theme": "Selected Theme",
         "story": "Final Story",
+        "illustration": "Illustration",
         "parents": "Parents Guide",
         "date": "Date",
         "hebrew_name": "Hebrew name",
@@ -85,13 +87,35 @@ def add_paragraph(story, text, style, spacer):
         story.append(spacer)
 
 
+def add_illustration(story, illustration_path, labels, heading_style, spacer):
+    if not illustration_path:
+        return
+
+    illustration_path = Path(illustration_path)
+
+    if not illustration_path.exists():
+        return
+
+    from reportlab.lib.units import inch
+    from reportlab.platypus import Image, Paragraph
+
+    story.append(Paragraph(labels.get("illustration", "Illustration"), heading_style))
+
+    image = Image(str(illustration_path))
+    image.drawWidth = 4.5 * inch
+    image.drawHeight = 4.5 * inch
+    story.append(image)
+    story.append(spacer)
+
+
 def export_story_pdf(
     selected_event,
     selected_theme,
     final_story,
     parent_companion,
     language,
-    story_title
+    story_title,
+    illustration_path=None
 ):
     try:
         from reportlab.lib.pagesizes import LETTER
@@ -191,6 +215,14 @@ def export_story_pdf(
 
     add_heading(story, labels["story"], lambda text: Paragraph(text, heading_style))
     add_paragraph(story, final_story, lambda text: Paragraph(text, body_style), spacer)
+
+    add_illustration(
+        story,
+        illustration_path,
+        labels,
+        heading_style,
+        spacer
+    )
 
     add_heading(story, labels["parents"], lambda text: Paragraph(text, heading_style))
     add_paragraph(
