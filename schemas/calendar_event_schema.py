@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class CalendarEvent(BaseModel):
@@ -10,6 +10,9 @@ class CalendarEvent(BaseModel):
     description: str
     narrative_values: List[str]
     story_angles: List[str]
+    tradition: Optional[str] = None
+    date_note: Optional[str] = None
+    source_notes: List[str] = []
 
 
 class CalendarContext(BaseModel):

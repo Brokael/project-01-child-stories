@@ -116,9 +116,19 @@ Logs are written to `logs/app.log`.
    streamlit run streamlit_app.py
    ```
 
-   The Streamlit interface guides the user through event and language
-   selection, theme selection, story generation, optional illustration, the
-   Parents Guide, and PDF export.
+The Streamlit interface guides the user through event and language
+selection, theme selection, story generation, optional illustration, the
+Parents Guide, and PDF export.
+
+The Event & Language step currently supports two cultural event sources:
+
+- Jewish calendar events from Hebcal.
+- Curated Persian cultural events from `data/cultural_events/persian_events.json`.
+
+The Persian source is local for the MVP and focuses on ancient Iranian,
+Persian, and Zoroastrian-influenced seasonal traditions. It intentionally
+excludes modern political/state holidays and Islamic holidays. Approximate or
+variable dates are marked in the data file.
 
    If Streamlit Cloud is configured to run `main.py`, the app will still route
    to the Streamlit interface. Running `python main.py` locally keeps the

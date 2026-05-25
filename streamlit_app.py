@@ -6,6 +6,7 @@ import streamlit as st
 
 from agents.illustration_brief_agent import generate_scene_brief
 import agents.calendar_context_agent as calendar_context_agent
+import agents.persian_context_agent as persian_context_agent
 import agents.theme_selector_agent as theme_selector_agent
 import orchestrator.story_pipeline as story_pipeline
 from schemas.calendar_event_schema import CalendarContext
@@ -30,12 +31,14 @@ STEPS = [
 ]
 
 LANGUAGE_OPTIONS = ["Français", "English", "Hebrew", "Other"]
+TRADITION_OPTIONS = ["Jewish", "Persian"]
 
 UI_TEXT = {
     "Français": {
         "app_title": "Generateur d'histoire du soir",
         "intro": "Une session guidee pour creer une histoire calme et familiale.",
         "language": "Langue de l'histoire",
+        "tradition": "Tradition culturelle",
         "custom_language": "Langue souhaitee",
         "load_events": "Charger les evenements",
         "choose_event": "Choisir l'evenement cible",
@@ -58,6 +61,7 @@ UI_TEXT = {
         "app_title": "Bedtime Story Generator",
         "intro": "A guided client session for creating a calm family story.",
         "language": "Story language",
+        "tradition": "Cultural tradition",
         "custom_language": "Desired language",
         "load_events": "Load events",
         "choose_event": "Choose the target event",
@@ -80,6 +84,7 @@ UI_TEXT = {
         "app_title": "מחולל סיפור לפני השינה",
         "intro": "תהליך מודרך ליצירת סיפור משפחתי רגוע.",
         "language": "שפת הסיפור",
+        "tradition": "Cultural tradition",
         "custom_language": "שפה רצויה",
         "load_events": "טעינת אירועים",
         "choose_event": "בחירת האירוע",
@@ -101,6 +106,7 @@ def init_session_state():
         "current_step": 0,
         "calendar_context": None,
         "selected_event": None,
+        "tradition_choice": "Jewish",
         "language_choice": "Français",
         "custom_language": "",
         "selected_language": "Français",
@@ -114,6 +120,7 @@ def init_session_state():
         "scene_brief": None,
         "illustration_path": None,
         "last_event_key": None,
+        "last_tradition": "Jewish",
         "last_language": "Français"
     }
 
@@ -162,6 +169,10 @@ def has_current_event_shape(calendar_context):
 
 
 def load_event_choices():
+    if st.session_state.tradition_choice == "Persian":
+        module = importlib.reload(persian_context_agent)
+        return module.get_persian_context()
+
     module = importlib.reload(calendar_context_agent)
     return module.get_calendar_context()
 
@@ -211,12 +222,23 @@ def show_progress():
 
 def show_event_summary(event):
     st.subheader(event.name)
+    if event.tradition:
+        st.write(f"Tradition: {event.tradition}")
+
     st.write(f"Date: {event.start_date}")
 
     if event.hebrew_name:
         st.write(f"Hebrew name: {event.hebrew_name}")
 
     st.write(event.description)
+
+    if event.date_note:
+        st.caption(event.date_note)
+
+    if event.source_notes:
+        with st.expander("Source notes"):
+            for source_note in event.source_notes:
+                st.write(f"- {source_note}")
 
 
 def show_theme_card(theme):
@@ -328,6 +350,21 @@ def show_navigation(can_go_next=True):
 
 def event_and_language_step():
     st.header(STEPS[0])
+
+    tradition_choice = st.radio(
+        text("tradition"),
+        TRADITION_OPTIONS,
+        index=TRADITION_OPTIONS.index(st.session_state.tradition_choice),
+        horizontal=True
+    )
+    st.session_state.tradition_choice = tradition_choice
+
+    if tradition_choice != st.session_state.last_tradition:
+        st.session_state.last_tradition = tradition_choice
+        st.session_state.calendar_context = None
+        st.session_state.selected_event = None
+        st.session_state.last_event_key = None
+        reset_generated_outputs()
 
     language_choice = st.radio(
         text("language"),

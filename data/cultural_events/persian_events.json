@@ -1,0 +1,121 @@
+[
+  {
+    "name": "Sadeh",
+    "tradition": "Persian",
+    "month_day": "01-30",
+    "approximate": false,
+    "date_note": "Observed around January 30 in many modern references.",
+    "description": "A winter fire festival associated with warmth, light, cooperation, and the hope of spring.",
+    "narrative_values": ["warmth", "cooperation", "hope", "care for community"],
+    "story_angles": [
+      "Children help gather safe lantern lights for a winter night.",
+      "A small flame reminds a village to share warmth and kindness."
+    ],
+    "source_notes": [
+      "Encyclopaedia Iranica describes Sadeh as an ancient Iranian fire festival.",
+      "Source: https://www.iranicaonline.org/articles/sada-festival"
+    ]
+  },
+  {
+    "name": "Chaharshanbe Suri",
+    "tradition": "Persian",
+    "date_rule": "tuesday_before_nowruz",
+    "approximate": true,
+    "date_note": "Variable date: the Tuesday evening before Nowruz.",
+    "description": "A pre-Nowruz fire-jumping tradition, reframed here as a child-safe celebration of light, renewal, and letting go of winter worries.",
+    "narrative_values": ["renewal", "bravery", "letting go", "joy"],
+    "story_angles": [
+      "A child trades winter worries for a bright spring wish.",
+      "A family prepares safe lanterns and songs before the new year."
+    ],
+    "source_notes": [
+      "Encyclopaedia Iranica describes Chaharshanbe Suri as a pre-Nowruz fire festival.",
+      "Source: https://www.iranicaonline.org/articles/caharsanba-suri"
+    ]
+  },
+  {
+    "name": "Nowruz",
+    "tradition": "Persian",
+    "month_day": "03-20",
+    "approximate": true,
+    "date_note": "Approximate equinox date; often falls on March 20 or 21.",
+    "description": "The Persian new year and spring renewal festival, centered on fresh beginnings, visiting loved ones, and welcoming light.",
+    "narrative_values": ["renewal", "family", "fresh beginnings", "gratitude"],
+    "story_angles": [
+      "A child prepares a spring table and discovers each object has a gentle lesson.",
+      "A sleepy garden wakes up for the new year."
+    ],
+    "source_notes": [
+      "UNESCO recognizes Nowruz as an Intangible Cultural Heritage tradition marking the new year and spring renewal.",
+      "Source: https://ich.unesco.org/en/RL/nowruz-01161"
+    ]
+  },
+  {
+    "name": "Sizdah Bedar",
+    "tradition": "Persian",
+    "month_day": "04-02",
+    "approximate": true,
+    "date_note": "Approximate Gregorian date for the 13th day of Farvardin; shifts with Nowruz timing.",
+    "description": "A spring outdoor day at the end of the Nowruz season, associated with nature, picnics, play, and releasing worries.",
+    "narrative_values": ["nature", "playfulness", "release", "family togetherness"],
+    "story_angles": [
+      "A family picnic helps a child say goodbye to a small worry.",
+      "A little sprout carries a wish from the house to the garden."
+    ],
+    "source_notes": [
+      "Encyclopaedia Iranica describes Sizdah Bedar as the thirteenth-day outdoor observance after Nowruz.",
+      "Source: https://www.iranicaonline.org/articles/sizdah-bedar"
+    ]
+  },
+  {
+    "name": "Tirgan",
+    "tradition": "Persian",
+    "month_day": "07-01",
+    "approximate": true,
+    "date_note": "Approximate Gregorian placement; observance dates vary by calendar tradition.",
+    "description": "A summer water and rain festival associated with refreshment, gratitude, storytelling, and wishes for good waters.",
+    "narrative_values": ["gratitude", "water", "truth", "refreshment"],
+    "story_angles": [
+      "Children follow a silver stream to return a lost cup of rain.",
+      "A dry garden learns to ask for help and share water wisely."
+    ],
+    "source_notes": [
+      "Encyclopaedia Iranica describes Tirgan as an Iranian festival connected with water and rain traditions.",
+      "Source: https://www.iranicaonline.org/articles/tirgan"
+    ]
+  },
+  {
+    "name": "Mehregan",
+    "tradition": "Persian",
+    "month_day": "10-02",
+    "approximate": true,
+    "date_note": "Approximate Gregorian placement; observance dates vary by calendar tradition.",
+    "description": "An autumn festival connected with friendship, kindness, harvest gratitude, and the light of Mithra/Mihr in cultural tradition.",
+    "narrative_values": ["friendship", "kindness", "harvest gratitude", "fairness"],
+    "story_angles": [
+      "A child shares the last golden apple and finds the harvest feels bigger.",
+      "Friends light a gentle autumn lamp for fairness and kindness."
+    ],
+    "source_notes": [
+      "Encyclopaedia Iranica describes Mehregan as an Iranian autumn festival linked with Mihr/Mithra.",
+      "Source: https://www.iranicaonline.org/articles/mehragan"
+    ]
+  },
+  {
+    "name": "Yalda Night",
+    "tradition": "Persian",
+    "month_day": "12-21",
+    "approximate": true,
+    "date_note": "Winter solstice observance, around December 20 or 21.",
+    "description": "A winter solstice night of family gathering, stories, poetry, fruit, and waiting together for the return of longer light.",
+    "narrative_values": ["patience", "family", "storytelling", "hope"],
+    "story_angles": [
+      "A child waits through the longest night with stories and a tiny red pomegranate seed.",
+      "The moon helps a family count small lights until morning."
+    ],
+    "source_notes": [
+      "Encyclopaedia Iranica describes Yalda as a winter solstice celebration in Iranian tradition.",
+      "Source: https://www.iranicaonline.org/articles/cella"
+    ]
+  }
+]
