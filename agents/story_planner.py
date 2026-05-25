@@ -1,15 +1,7 @@
 from config import MODELS, LANGUAGE
-from openai import OpenAI
-from dotenv import load_dotenv
 from schemas.story_plan_schema import StoryPlan
 from story_parameters import STORY_PARAMETERS
-import os
-
-load_dotenv()
-
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+from utils.openai_client import get_openai_client
 
 
 def generate_story_plan(selected_theme=None, language=None):
@@ -32,7 +24,7 @@ Selected Theme:
 {selected_theme}
 """
 
-    response = client.responses.parse(
+    response = get_openai_client().responses.parse(
         model=MODELS["story_planner"],
         input=full_prompt,
         text_format=StoryPlan

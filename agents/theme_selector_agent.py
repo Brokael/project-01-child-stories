@@ -1,14 +1,6 @@
-from openai import OpenAI
-from dotenv import load_dotenv
 from config import MODELS, LANGUAGE
 from schemas.theme_option_schema import ThemeOptions
-import os
-
-load_dotenv()
-
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+from utils.openai_client import get_openai_client
 
 
 def generate_theme_options(calendar_context, language=None):
@@ -28,7 +20,7 @@ Calendar Context:
 {calendar_context}
 """
 
-    response = client.responses.parse(
+    response = get_openai_client().responses.parse(
         model=MODELS["theme_selector"],
         input=full_prompt,
         text_format=ThemeOptions

@@ -1,13 +1,5 @@
 from config import MODELS, LANGUAGE
-from openai import OpenAI
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+from utils.openai_client import get_openai_client
 
 
 def rewrite_story(story_plan, story, review, language=None):
@@ -32,7 +24,7 @@ Reviewer feedback:
 {review}
 """
 
-    response = client.responses.create(
+    response = get_openai_client().responses.create(
         model=MODELS["rewriter"],
         input=full_prompt
     )

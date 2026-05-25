@@ -1,14 +1,6 @@
 from config import MODELS, LANGUAGE
-from openai import OpenAI
-from dotenv import load_dotenv
 from schemas.parent_companion_schema import ParentCompanion
-import os
-
-load_dotenv()
-
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+from utils.openai_client import get_openai_client
 
 
 def generate_parent_companion(
@@ -42,7 +34,7 @@ Calendar Context:
 {calendar_context}
 """
 
-    response = client.responses.parse(
+    response = get_openai_client().responses.parse(
         model=MODELS["parent_companion"],
         input=full_prompt,
         text_format=ParentCompanion

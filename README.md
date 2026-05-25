@@ -90,6 +90,12 @@ Logs are written to `logs/app.log`.
    OPENAI_API_KEY=your_api_key_here
    ```
 
+   For Streamlit Cloud, add the same key in the app's Secrets settings:
+
+   ```toml
+   OPENAI_API_KEY = "your_api_key_here"
+   ```
+
 4. Review the basic settings in `config.py`:
 
    - `DEFAULT_MODEL`
