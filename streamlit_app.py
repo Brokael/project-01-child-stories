@@ -30,11 +30,11 @@ STEPS = [
     "Export"
 ]
 
-LANGUAGE_OPTIONS = ["Français", "English", "Hebrew", "Other"]
+LANGUAGE_OPTIONS = ["French", "English", "Hebrew", "Persian / Farsi", "Other"]
 TRADITION_OPTIONS = ["Jewish", "Persian"]
 
 UI_TEXT = {
-    "Français": {
+    "French": {
         "app_title": "Generateur d'histoire du soir",
         "intro": "Une session guidee pour creer une histoire calme et familiale.",
         "language": "Langue de l'histoire",
@@ -97,6 +97,29 @@ UI_TEXT = {
         "download_pdf": "הורדת PDF",
         "back": "חזרה",
         "next": "הבא"
+    },
+    "Persian / Farsi": {
+        "app_title": "\u0633\u0627\u0632\u0646\u062f\u0647 \u062f\u0627\u0633\u062a\u0627\u0646 \u0642\u0628\u0644 \u0627\u0632 \u062e\u0648\u0627\u0628",
+        "intro": "\u064a\u06a9 \u062c\u0644\u0633\u0647 \u0631\u0627\u0647\u0646\u0645\u0627\u064a\u064a\u200c\u0634\u062f\u0647 \u0628\u0631\u0627\u064a \u0633\u0627\u062e\u062a\u0646 \u064a\u06a9 \u062f\u0627\u0633\u062a\u0627\u0646 \u0622\u0631\u0627\u0645 \u062e\u0627\u0646\u0648\u0627\u062f\u06af\u064a.",
+        "language": "\u0632\u0628\u0627\u0646 \u062f\u0627\u0633\u062a\u0627\u0646",
+        "tradition": "\u0633\u0646\u062a \u0641\u0631\u0647\u0646\u06af\u064a",
+        "custom_language": "\u0632\u0628\u0627\u0646 \u062f\u0644\u062e\u0648\u0627\u0647",
+        "load_events": "\u0628\u0627\u0631\u06af\u064a\u0631\u064a \u0631\u0648\u064a\u062f\u0627\u062f\u0647\u0627",
+        "choose_event": "\u0627\u0646\u062a\u062e\u0627\u0628 \u0631\u0648\u064a\u062f\u0627\u062f",
+        "generate_themes": "\u0633\u0627\u062e\u062a\u0646 \u0645\u0648\u0636\u0648\u0639\u200c\u0647\u0627",
+        "choose_theme": "\u0627\u0646\u062a\u062e\u0627\u0628 \u0645\u0648\u0636\u0648\u0639",
+        "choose_this_theme": "\u0627\u064a\u0646 \u0645\u0648\u0636\u0648\u0639 \u0631\u0627 \u0627\u0646\u062a\u062e\u0627\u0628 \u06a9\u0646",
+        "generate_story": "\u0633\u0627\u062e\u062a\u0646 \u062f\u0627\u0633\u062a\u0627\u0646",
+        "story_ready": "\u062f\u0627\u0633\u062a\u0627\u0646 \u0622\u0645\u0627\u062f\u0647 \u0627\u0633\u062a.",
+        "generate_illustration": "\u0633\u0627\u062e\u062a\u0646 \u064a\u06a9 \u062a\u0635\u0648\u064a\u0631 \u0628\u0631\u0627\u064a \u062f\u0627\u0633\u062a\u0627\u0646",
+        "create_illustration": "\u0633\u0627\u062e\u062a\u0646 \u062a\u0635\u0648\u064a\u0631",
+        "illustration_ready": "\u062a\u0635\u0648\u064a\u0631 \u0622\u0645\u0627\u062f\u0647 \u0627\u0633\u062a.",
+        "story": "\u062f\u0627\u0633\u062a\u0627\u0646",
+        "parents_guide": "\u0631\u0627\u0647\u0646\u0645\u0627\u064a \u0648\u0627\u0644\u062f\u064a\u0646",
+        "create_pdf": "\u0633\u0627\u062e\u062a\u0646 PDF",
+        "download_pdf": "\u062f\u0627\u0646\u0644\u0648\u062f PDF",
+        "back": "\u0628\u0627\u0632\u06af\u0634\u062a",
+        "next": "\u0628\u0639\u062f\u064a"
     }
 }
 
@@ -107,9 +130,9 @@ def init_session_state():
         "calendar_context": None,
         "selected_event": None,
         "tradition_choice": "Jewish",
-        "language_choice": "Français",
+        "language_choice": "French",
         "custom_language": "",
-        "selected_language": "Français",
+        "selected_language": "French",
         "theme_options": None,
         "selected_theme": None,
         "pipeline_result": None,
@@ -121,7 +144,7 @@ def init_session_state():
         "illustration_path": None,
         "last_event_key": None,
         "last_tradition": "Jewish",
-        "last_language": "Français"
+        "last_language": "French"
     }
 
     for key, value in defaults.items():
@@ -132,6 +155,16 @@ def init_session_state():
 def text(key):
     labels = UI_TEXT.get(st.session_state.selected_language, UI_TEXT["English"])
     return labels.get(key, UI_TEXT["English"][key])
+
+
+def normalize_language_choice(language):
+    if language in ["Français", "FranÃ§ais", "Francais"]:
+        return "French"
+
+    if language in LANGUAGE_OPTIONS:
+        return language
+
+    return "Other"
 
 
 def event_label(event):
@@ -350,6 +383,10 @@ def show_navigation(can_go_next=True):
 
 def event_and_language_step():
     st.header(STEPS[0])
+
+    st.session_state.language_choice = normalize_language_choice(
+        st.session_state.language_choice
+    )
 
     tradition_choice = st.radio(
         text("tradition"),

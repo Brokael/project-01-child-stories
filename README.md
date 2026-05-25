@@ -147,11 +147,12 @@ would be preferred for cost control, but it is not a supported size for the
 current `gpt-image-1` image edit endpoint; `1024x1024` is the smallest valid
 square size for this model.
 
-PDF export uses ReportLab with a Unicode-capable system font when available
-and `python-bidi` for Hebrew text ordering. On Streamlit Cloud, DejaVu fonts
+PDF export uses ReportLab with a Unicode-capable system font when available.
+It uses `python-bidi` for right-to-left text ordering and `arabic-reshaper` for
+Persian/Farsi and Arabic-script glyph shaping. On Streamlit Cloud, DejaVu fonts
 are normally available under the system font directories. If deploying to a
 minimal environment without Unicode fonts, add a licensed TTF such as Noto Sans
-Hebrew to `assets/fonts/`.
+Hebrew or Noto Naskh Arabic to `assets/fonts/`.
 
 ## Current Limitations
 

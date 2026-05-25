@@ -6,9 +6,13 @@ from xml.sax.saxutils import escape
 
 FONT_CANDIDATES = [
     Path("assets/fonts/NotoSansHebrew-Regular.ttf"),
+    Path("assets/fonts/NotoNaskhArabic-Regular.ttf"),
+    Path("assets/fonts/NotoSansArabic-Regular.ttf"),
     Path("assets/fonts/NotoSans-Regular.ttf"),
     Path("assets/fonts/DejaVuSans.ttf"),
     Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    Path("/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf"),
+    Path("/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf"),
     Path("/usr/share/fonts/truetype/noto/NotoSansHebrew-Regular.ttf"),
     Path("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"),
     Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
@@ -68,12 +72,29 @@ SECTION_LABELS = {
         "core_values": "\u05e2\u05e8\u05db\u05d9\u05dd",
         "story_connection": "\u05e7\u05e9\u05e8 \u05dc\u05e1\u05d9\u05e4\u05d5\u05e8",
         "symbols": "\u05de\u05e8\u05db\u05d9\u05d1\u05d9\u05dd \u05dc\u05d4\u05d1\u05e0\u05d4"
+    },
+    "Persian / Farsi": {
+        "title": "\u062f\u0627\u0633\u062a\u0627\u0646 \u0642\u0628\u0644 \u0627\u0632 \u062e\u0648\u0627\u0628",
+        "event": "\u0631\u0648\u064a\u062f\u0627\u062f \u0627\u0646\u062a\u062e\u0627\u0628\u200c\u0634\u062f\u0647",
+        "theme": "\u0645\u0648\u0636\u0648\u0639 \u0627\u0646\u062a\u062e\u0627\u0628\u200c\u0634\u062f\u0647",
+        "story": "\u062f\u0627\u0633\u062a\u0627\u0646 \u0646\u0647\u0627\u064a\u064a",
+        "illustration": "\u062a\u0635\u0648\u064a\u0631",
+        "parents": "\u0631\u0627\u0647\u0646\u0645\u0627\u064a \u0648\u0627\u0644\u062f\u064a\u0646",
+        "date": "\u062a\u0627\u0631\u064a\u062e",
+        "hebrew_name": "\u0646\u0627\u0645 \u0639\u0628\u0631\u064a",
+        "source_event": "\u0631\u0648\u064a\u062f\u0627\u062f \u0645\u0646\u0628\u0639",
+        "core_value": "\u0627\u0631\u0632\u0634 \u0627\u0635\u0644\u064a",
+        "story_angle": "\u0632\u0627\u0648\u064a\u0647 \u062f\u0627\u0633\u062a\u0627\u0646",
+        "linked_event": "\u0631\u0648\u064a\u062f\u0627\u062f \u0645\u0631\u062a\u0628\u0637",
+        "core_values": "\u0627\u0631\u0632\u0634\u200c\u0647\u0627",
+        "story_connection": "\u0627\u0631\u062a\u0628\u0627\u0637 \u0628\u0627 \u062f\u0627\u0633\u062a\u0627\u0646",
+        "symbols": "\u0639\u0646\u0627\u0635\u0631 \u062f\u0627\u0633\u062a\u0627\u0646 \u0628\u0631\u0627\u064a \u062f\u0631\u06a9"
     }
 }
 
 
 def get_labels(language):
-    if language in ["Francais", "Français", "FranÃ§ais"]:
+    if language in ["French", "Francais", "Français", "FranÃ§ais"]:
         return SECTION_LABELS["Francais"]
 
     return SECTION_LABELS.get(language, SECTION_LABELS["English"])
@@ -91,8 +112,21 @@ def contains_hebrew(text):
     return bool(re.search(r"[\u0590-\u05ff]", str(text)))
 
 
+def contains_arabic_script(text):
+    return bool(re.search(r"[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]", str(text)))
+
+
 def prepare_text_for_pdf(text):
     text = str(text)
+
+    if contains_arabic_script(text):
+        try:
+            import arabic_reshaper
+            from bidi.algorithm import get_display
+
+            return get_display(arabic_reshaper.reshape(text))
+        except ImportError:
+            return text
 
     if contains_hebrew(text):
         try:

@@ -5,3 +5,4 @@ pydantic
 streamlit
 reportlab
 python-bidi
+arabic-reshaper
