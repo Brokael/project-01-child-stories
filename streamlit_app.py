@@ -38,7 +38,9 @@ UI_TEXT = {
         "choose_event": "Choisir l'evenement cible",
         "generate_themes": "Generer les themes",
         "choose_theme": "Choisir un theme",
+        "choose_this_theme": "Choisir ce theme",
         "generate_story": "Generer l'histoire",
+        "story_ready": "L'histoire est prete.",
         "story": "Histoire",
         "parents_guide": "Guide Parents",
         "create_pdf": "Creer le PDF",
@@ -55,7 +57,9 @@ UI_TEXT = {
         "choose_event": "Choose the target event",
         "generate_themes": "Generate themes",
         "choose_theme": "Choose a theme",
+        "choose_this_theme": "Choose this theme",
         "generate_story": "Generate Story",
+        "story_ready": "The story is ready.",
         "story": "Story",
         "parents_guide": "Parents Guide",
         "create_pdf": "Create PDF",
@@ -95,6 +99,7 @@ def init_session_state():
         "selected_theme": None,
         "pipeline_result": None,
         "pdf_path": None,
+        "is_generating_story": False,
         "last_event_key": None,
         "last_language": "Français"
     }
@@ -168,11 +173,13 @@ def reset_generated_outputs():
     st.session_state.selected_theme = None
     st.session_state.pipeline_result = None
     st.session_state.pdf_path = None
+    st.session_state.is_generating_story = False
 
 
 def reset_story_outputs():
     st.session_state.pipeline_result = None
     st.session_state.pdf_path = None
+    st.session_state.is_generating_story = False
 
 
 def show_progress():
@@ -198,6 +205,29 @@ def show_theme_card(theme):
         st.write(f"Core value: {theme.core_value}")
         st.write(f"Story angle: {theme.story_angle}")
         st.write(theme.description)
+
+
+def choose_theme(theme):
+    if theme != st.session_state.selected_theme:
+        st.session_state.selected_theme = theme
+        reset_story_outputs()
+
+    st.session_state.current_step = 2
+
+
+def show_selectable_theme_card(theme):
+    with st.container(border=True):
+        st.subheader(theme.title)
+        st.write(f"Source event: {theme.source_event}")
+        st.write(f"Core value: {theme.core_value}")
+        st.write(f"Story angle: {theme.story_angle}")
+        st.write(theme.description)
+        st.button(
+            text("choose_this_theme"),
+            key=f"choose_theme_{theme.option_number}",
+            on_click=choose_theme,
+            args=(theme,)
+        )
 
 
 def show_selected_theme(theme):
@@ -328,17 +358,7 @@ def theme_selection_step():
 
     if st.session_state.theme_options:
         for theme in st.session_state.theme_options.options:
-            show_theme_card(theme)
-
-        selected_theme = st.radio(
-            text("choose_theme"),
-            st.session_state.theme_options.options,
-            format_func=theme_label
-        )
-
-        if selected_theme != st.session_state.selected_theme:
-            st.session_state.selected_theme = selected_theme
-            reset_story_outputs()
+            show_selectable_theme_card(theme)
 
     show_navigation(can_go_next=st.session_state.selected_theme is not None)
 
@@ -352,17 +372,31 @@ def generate_step():
     st.subheader("Selected theme")
     show_selected_theme(st.session_state.selected_theme)
 
-    if st.button(text("generate_story")):
-        with st.spinner("Generating, reviewing, rewriting, and saving the story..."):
-            st.session_state.pipeline_result = run_generation_pipeline(
-                selected_event_context(),
-                st.session_state.theme_options,
-                st.session_state.selected_theme,
-                st.session_state.selected_language
-            )
-            st.session_state.pdf_path = None
+    if st.session_state.pipeline_result:
+        st.success(text("story_ready"))
+        show_navigation(can_go_next=True)
+        return
 
-    show_navigation(can_go_next=st.session_state.pipeline_result is not None)
+    if st.button(
+        text("generate_story"),
+        disabled=st.session_state.is_generating_story
+    ):
+        st.session_state.is_generating_story = True
+        with st.spinner("Generating, reviewing, rewriting, and saving the story..."):
+            try:
+                st.session_state.pipeline_result = run_generation_pipeline(
+                    selected_event_context(),
+                    st.session_state.theme_options,
+                    st.session_state.selected_theme,
+                    st.session_state.selected_language
+                )
+                st.session_state.pdf_path = None
+                st.session_state.current_step = 3
+                st.rerun()
+            finally:
+                st.session_state.is_generating_story = False
+
+    show_navigation(can_go_next=False)
 
 
 def story_step():
