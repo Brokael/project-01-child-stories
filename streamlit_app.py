@@ -548,7 +548,8 @@ def story_step():
                         illustration_path = generate_story_illustration(
                             scene_brief=st.session_state.scene_brief,
                             story_title=story_plan.title,
-                            language=st.session_state.selected_language
+                            language=st.session_state.selected_language,
+                            story_context=final_story
                         )
                         st.session_state.illustration_path = str(illustration_path)
                         st.success(text("illustration_ready"))

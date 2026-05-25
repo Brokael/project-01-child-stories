@@ -141,6 +141,10 @@ saved in `illustrations/`. These folders are ignored by Git.
 Optional illustration generation uses local style reference images from
 `assets/style_references/`. Keep a small number of curated reference images in
 that folder so deployed environments can reproduce the intended visual style.
+The image prompt combines a compact scene brief, a short excerpt of the selected
+story, a centralized minimalist visual style profile, and the local reference
+images. The references guide the overall palette, texture, simplicity, and mood
+without asking the model to copy them directly.
 The MVP uses one `gpt-image-1` image edit call per story, with `n=1`,
 `quality="low"`, `input_fidelity="low"`, and `size="1024x1024"`. `512x512`
 would be preferred for cost control, but it is not a supported size for the

@@ -14,16 +14,26 @@ IMAGE_COUNT = 1
 IMAGE_SIZE = "1024x1024"
 IMAGE_QUALITY = "low"
 IMAGE_INPUT_FIDELITY = "low"
-STYLE_GUIDANCE = """
-Use the provided reference images as strict style references, not loose inspiration.
-Match these qualities:
-- minimalist children's-book illustration;
-- soft paper-cut or gouache-like texture;
-- simple rounded shapes and gentle silhouettes;
-- muted warm palette with restrained contrast;
-- uncluttered composition with calm negative space;
-- cozy bedtime mood, tender lighting, and quiet emotion;
-- no photorealism, no 3D render, no anime, no comic-book style, no glossy digital look.
+STORY_CONTEXT_LIMIT = 1200
+VISUAL_STYLE_PROFILE = """
+Minimalist child-friendly storybook illustration.
+Soft bedtime atmosphere.
+Simple rounded shapes.
+Gentle composition.
+Low-detail background.
+Warm, calm, harmonious palette.
+Subtle hand-drawn or painted storybook feeling.
+No photorealism.
+No complex scenery.
+No text, letters, captions, signs, or written words.
+Inspired by the local style references without copying them directly.
+"""
+REFERENCE_STYLE_INSTRUCTIONS = """
+Use the provided local style reference images as the main visual direction.
+Follow their overall simplicity, palette, texture, softness, and child-friendly mood.
+Do not copy a specific character, object, or exact composition from the references.
+Prefer broad, rounded silhouettes, quiet negative space, and a soft paper-cut or gouache-like finish.
+Avoid 3D render, anime, comic-book style, glossy digital art, realistic people, complex scenery, and dramatic lighting.
 """
 
 
@@ -44,9 +54,27 @@ def get_style_reference_paths():
     ]
 
 
-def build_illustration_prompt(scene_brief, language):
+def compact_story_context(story_text):
+    story_text = " ".join(str(story_text).split())
+
+    if len(story_text) <= STORY_CONTEXT_LIMIT:
+        return story_text
+
+    return f"{story_text[:STORY_CONTEXT_LIMIT].rstrip()}..."
+
+
+def build_illustration_prompt(scene_brief, language, story_context=None):
+    story_context_section = ""
+
+    if story_context:
+        story_context_section = f"""
+Selected story context:
+{compact_story_context(story_context)}
+"""
+
     return f"""
 Create one minimalist bedtime story illustration based on this scene brief.
+Use the scene brief as the composition target and the selected story context as continuity support.
 
 Scene title: {scene_brief.scene_title}
 Key moment: {scene_brief.key_moment}
@@ -54,13 +82,17 @@ Characters: {scene_brief.characters}
 Setting: {scene_brief.setting}
 Mood: {scene_brief.mood}
 Visual details: {scene_brief.visual_details}
+{story_context_section}
 
 Style requirements:
-- Follow the visual style, palette, texture, and simplicity of the provided reference images.
-- Treat the reference images as the source of truth for visual style.
-- {STYLE_GUIDANCE.strip()}
-- Gentle children's book illustration.
-- Minimalist composition with soft shapes and calm negative space.
+- Visual style profile:
+{VISUAL_STYLE_PROFILE.strip()}
+
+- Local reference guidance:
+{REFERENCE_STYLE_INSTRUCTIONS.strip()}
+
+- Keep one clear focal moment from the story.
+- Keep the setting sparse and readable.
 - Warm, reassuring, non-scary, and age-appropriate for ages 5-7.
 - No text, letters, captions, logos, watermarks, frames, speech bubbles, or UI elements.
 - Do not depict realistic identifiable people.
@@ -86,7 +118,7 @@ def save_image_from_response(response, story_title):
     return image_path.resolve()
 
 
-def generate_story_illustration(scene_brief, story_title, language):
+def generate_story_illustration(scene_brief, story_title, language, story_context=None):
     reference_paths = get_style_reference_paths()
 
     if not reference_paths:
@@ -103,7 +135,7 @@ def generate_story_illustration(scene_brief, story_title, language):
         response = get_openai_client().images.edit(
             model=MODELS["illustration_image"],
             image=image_files,
-            prompt=build_illustration_prompt(scene_brief, language),
+            prompt=build_illustration_prompt(scene_brief, language, story_context),
             n=IMAGE_COUNT,
             size=IMAGE_SIZE,
             quality=IMAGE_QUALITY,
