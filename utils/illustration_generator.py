@@ -14,6 +14,17 @@ IMAGE_COUNT = 1
 IMAGE_SIZE = "1024x1024"
 IMAGE_QUALITY = "low"
 IMAGE_INPUT_FIDELITY = "low"
+STYLE_GUIDANCE = """
+Use the provided reference images as strict style references, not loose inspiration.
+Match these qualities:
+- minimalist children's-book illustration;
+- soft paper-cut or gouache-like texture;
+- simple rounded shapes and gentle silhouettes;
+- muted warm palette with restrained contrast;
+- uncluttered composition with calm negative space;
+- cozy bedtime mood, tender lighting, and quiet emotion;
+- no photorealism, no 3D render, no anime, no comic-book style, no glossy digital look.
+"""
 
 
 def slugify(value):
@@ -46,6 +57,8 @@ Visual details: {scene_brief.visual_details}
 
 Style requirements:
 - Follow the visual style, palette, texture, and simplicity of the provided reference images.
+- Treat the reference images as the source of truth for visual style.
+- {STYLE_GUIDANCE.strip()}
 - Gentle children's book illustration.
 - Minimalist composition with soft shapes and calm negative space.
 - Warm, reassuring, non-scary, and age-appropriate for ages 5-7.
@@ -70,7 +83,7 @@ def save_image_from_response(response, story_title):
     image_bytes = base64.b64decode(image_base64)
     image_path.write_bytes(image_bytes)
 
-    return image_path
+    return image_path.resolve()
 
 
 def generate_story_illustration(scene_brief, story_title, language):

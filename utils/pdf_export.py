@@ -4,8 +4,21 @@ import re
 from xml.sax.saxutils import escape
 
 
+FONT_CANDIDATES = [
+    Path("assets/fonts/NotoSansHebrew-Regular.ttf"),
+    Path("assets/fonts/NotoSans-Regular.ttf"),
+    Path("assets/fonts/DejaVuSans.ttf"),
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    Path("/usr/share/fonts/truetype/noto/NotoSansHebrew-Regular.ttf"),
+    Path("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"),
+    Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
+    Path("/Library/Fonts/Arial Unicode.ttf"),
+    Path("C:/Windows/Fonts/arial.ttf"),
+    Path("C:/Windows/Fonts/arialuni.ttf")
+]
+
 SECTION_LABELS = {
-    "Français": {
+    "Francais": {
         "title": "Histoire du soir",
         "event": "Evenement choisi",
         "theme": "Theme choisi",
@@ -40,26 +53,56 @@ SECTION_LABELS = {
         "symbols": "Story elements to understand"
     },
     "Hebrew": {
-        "title": "סיפור לפני השינה",
-        "event": "אירוע נבחר",
-        "theme": "נושא נבחר",
-        "story": "הסיפור הסופי",
-        "parents": "מדריך להורים",
-        "date": "תאריך",
-        "hebrew_name": "שם עברי",
-        "source_event": "אירוע מקור",
-        "core_value": "ערך מרכזי",
-        "story_angle": "זווית הסיפור",
-        "linked_event": "אירוע קשור",
-        "core_values": "ערכים",
-        "story_connection": "קשר לסיפור",
-        "symbols": "מרכיבים להבנה"
+        "title": "\u05e1\u05d9\u05e4\u05d5\u05e8 \u05dc\u05e4\u05e0\u05d9 \u05d4\u05e9\u05d9\u05e0\u05d4",
+        "event": "\u05d0\u05d9\u05e8\u05d5\u05e2 \u05e0\u05d1\u05d7\u05e8",
+        "theme": "\u05e0\u05d5\u05e9\u05d0 \u05e0\u05d1\u05d7\u05e8",
+        "story": "\u05d4\u05e1\u05d9\u05e4\u05d5\u05e8 \u05d4\u05e1\u05d5\u05e4\u05d9",
+        "illustration": "\u05d0\u05d9\u05d5\u05e8",
+        "parents": "\u05de\u05d3\u05e8\u05d9\u05da \u05dc\u05d4\u05d5\u05e8\u05d9\u05dd",
+        "date": "\u05ea\u05d0\u05e8\u05d9\u05da",
+        "hebrew_name": "\u05e9\u05dd \u05e2\u05d1\u05e8\u05d9",
+        "source_event": "\u05d0\u05d9\u05e8\u05d5\u05e2 \u05de\u05e7\u05d5\u05e8",
+        "core_value": "\u05e2\u05e8\u05da \u05de\u05e8\u05db\u05d6\u05d9",
+        "story_angle": "\u05d6\u05d5\u05d5\u05d9\u05ea \u05d4\u05e1\u05d9\u05e4\u05d5\u05e8",
+        "linked_event": "\u05d0\u05d9\u05e8\u05d5\u05e2 \u05e7\u05e9\u05d5\u05e8",
+        "core_values": "\u05e2\u05e8\u05db\u05d9\u05dd",
+        "story_connection": "\u05e7\u05e9\u05e8 \u05dc\u05e1\u05d9\u05e4\u05d5\u05e8",
+        "symbols": "\u05de\u05e8\u05db\u05d9\u05d1\u05d9\u05dd \u05dc\u05d4\u05d1\u05e0\u05d4"
     }
 }
 
 
 def get_labels(language):
+    if language in ["Francais", "Français", "FranÃ§ais"]:
+        return SECTION_LABELS["Francais"]
+
     return SECTION_LABELS.get(language, SECTION_LABELS["English"])
+
+
+def find_unicode_font_path():
+    for font_path in FONT_CANDIDATES:
+        if font_path.exists():
+            return font_path
+
+    return None
+
+
+def contains_hebrew(text):
+    return bool(re.search(r"[\u0590-\u05ff]", str(text)))
+
+
+def prepare_text_for_pdf(text):
+    text = str(text)
+
+    if contains_hebrew(text):
+        try:
+            from bidi.algorithm import get_display
+
+            return get_display(text)
+        except ImportError:
+            return text
+
+    return text
 
 
 def slugify(value):
@@ -76,12 +119,13 @@ def make_pdf_filename(selected_event, story_title):
 
 
 def add_heading(story, text, style):
-    story.append(style(text))
+    story.append(style(prepare_text_for_pdf(text)))
 
 
 def add_paragraph(story, text, style, spacer):
     if text:
-        clean_text = escape(str(text)).replace("\n", "<br/>")
+        prepared_text = prepare_text_for_pdf(text)
+        clean_text = escape(prepared_text).replace("\n", "<br/>")
         clean_text = clean_text.replace("&lt;br/&gt;", "<br/>")
         story.append(style(clean_text))
         story.append(spacer)
@@ -99,7 +143,9 @@ def add_illustration(story, illustration_path, labels, heading_style, spacer):
     from reportlab.lib.units import inch
     from reportlab.platypus import Image, Paragraph
 
-    story.append(Paragraph(labels.get("illustration", "Illustration"), heading_style))
+    story.append(
+        Paragraph(prepare_text_for_pdf(labels["illustration"]), heading_style)
+    )
 
     image = Image(str(illustration_path))
     image.drawWidth = 4.5 * inch
@@ -135,9 +181,9 @@ def export_story_pdf(
     pdf_path = exports_folder / make_pdf_filename(selected_event, story_title)
 
     font_name = "Helvetica"
-    font_path = Path("C:/Windows/Fonts/arial.ttf")
+    font_path = find_unicode_font_path()
 
-    if font_path.exists():
+    if font_path:
         pdfmetrics.registerFont(TTFont("StoryFont", str(font_path)))
         font_name = "StoryFont"
 

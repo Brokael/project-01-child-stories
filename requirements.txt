@@ -4,3 +4,4 @@ requests
 pydantic
 streamlit
 reportlab
+python-bidi
